@@ -1,0 +1,283 @@
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Font;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
+import java.net.Socket;
+import java.security.DigestInputStream;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+
+import javax.crypto.Cipher;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+
+public class Source implements ActionListener {
+
+	Container c;
+	JLabel l1, l2, l3, l4, img, op, op2;
+	JButton submit, b2, browse, b4;
+	String filename;
+	JTextField t1;
+	JTextArea ta;
+	JScrollPane sp;
+	JFrame jf;
+	Border b, bb;
+	File path;
+	int y = 0;
+	JLabel i2;
+	public Font f1 = new Font("Times new Roman", Font.BOLD, 17);
+	String mac;
+	String fname;
+	File field;
+	String SReciever = "";
+	String receiver = "";
+	String d = "";
+	JLabel il;
+	Source() {
+
+		jf = new JFrame("Source::A Secure and Efficient ID-Based Aggregate Signature Scheme for WSN");
+		c = jf.getContentPane();
+		c.setLayout(null);
+
+		
+		
+		
+		ImageIcon i1 = new ImageIcon(this.getClass().getResource("ServiceProvider.png"));
+		il = new JLabel();
+		il.setBounds(0, 0, 1000, 100);
+		il.setIcon(i1);
+
+		ImageIcon i11 = new ImageIcon(this.getClass().getResource("SourceBack.png"));
+		 i2 = new JLabel();
+		i2.setBounds(20, 100, 780, 430);
+		i2.setIcon(i11);
+
+
+		ta = new JTextArea();
+		ta.setColumns(100);
+		ta.setRows(100);
+
+		sp = new JScrollPane();
+		sp.setViewportView(ta);
+		sp.setBounds(120, 200, 300, 210);
+
+		Border b = BorderFactory.createBevelBorder(0);
+		op = new JLabel();
+		op.setBorder(b);
+
+		Border bb = BorderFactory.createBevelBorder(0);
+		op2 = new JLabel();
+		op2.setBorder(bb);
+		op.setBounds(80, 125, 625, 340);
+
+		l2 = new JLabel("FileName :");
+		l2.setFont(f1);
+		l2.setBounds(100, 150, 130, 30);
+
+		t1 = new JTextField();
+		t1.setBounds(190, 150, 190, 30);
+
+		submit = new JButton("Submit");
+		b2 = new JButton("Init Sign");
+		browse = new JButton("Browse");
+
+		submit.setBounds(470, 270, 150, 30);
+		submit.setFont(f1);
+		b2.setBounds(470, 330, 150, 30);
+		b2.setFont(f1);
+		browse.setBounds(470, 200, 150, 30);
+		browse.setFont(f1);
+
+		submit.addActionListener(this);
+		b2.addActionListener(this);
+		browse.addActionListener(this);
+
+		c.add(l2);
+		c.add(t1);
+		c.add(submit);
+		c.add(b2);
+		c.add(browse);
+		c.add(sp);
+		c.add(op);
+		c.add(il);
+		c.add(i2);
+
+		jf.show();
+		jf.setSize(850, 600);
+	}
+
+	public static void main(String[] args) {
+		new Source();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent ae) {
+		String strLine;
+		if (ae.getSource() == browse) 
+		{
+			JFileChooser chooser = new JFileChooser();
+
+			try {
+
+				File f = new File(new File("filename.txt").getCanonicalPath());
+
+				chooser.setSelectedFile(f);
+				
+			} catch (IOException e1) {
+			}
+
+			int retval = chooser.showOpenDialog(browse);
+			if (retval == JFileChooser.APPROVE_OPTION) {
+				File field = chooser.getSelectedFile();
+
+				filename = field.getName();
+
+				t1.setText(filename);
+
+			}
+
+			File curFile = chooser.getSelectedFile();
+
+			try {
+
+				FileInputStream fstream = new FileInputStream(curFile);
+
+				DataInputStream ins = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						ins));
+
+				StringBuffer buffer = new StringBuffer();
+				while ((strLine = br.readLine()) != null) {
+
+					buffer.append(strLine + "\n");
+
+				}
+				ta.setText(buffer.toString());
+				String content = ta.getText();
+
+				FileOutputStream fos = new FileOutputStream("Provider/"
+						+ filename);
+				fos.write(content.getBytes());
+				fos.close();
+
+			} catch (Exception e1) {
+				System.err.println("Error: " + e1.getMessage());
+			}
+			
+			try 
+			{                //Generating MAC
+				
+			
+				String fname1 = ta.getText();
+
+				MessageDigest md = MessageDigest.getInstance("SHA1");
+				FileInputStream in1 = new FileInputStream("Provider\\"
+						+ filename);
+				DigestInputStream dis2 = new DigestInputStream(in1, md);
+				BufferedInputStream bd = new BufferedInputStream(dis2);
+
+				while (true) {
+					int b2 = bd.read();
+					if (b2 == -1)
+						break;
+				}
+
+				BigInteger bi2 = new BigInteger(md.digest());
+				mac = bi2.toString(16);
+				System.out.println("The generated macis:" + mac);
+				
+				
+				
+				
+			} catch (Exception e) {
+				
+			}
+
+		}
+		
+		if(ae.getSource()==b2)
+		{
+			String ip = JOptionPane.showInputDialog("Enter Router IP Address");
+			try 
+			{
+				Socket s = new Socket(ip, 304);
+				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+				dos.writeUTF(mac);
+				
+				DataInputStream dis1=new DataInputStream(s.getInputStream());
+				String msg=dis1.readUTF();
+				
+				if(msg.equals("Success"))
+				{
+					JOptionPane.showMessageDialog(null, "Node Initialized Successfully");
+				}
+				
+			} catch (Exception e) {
+			
+			}
+		}
+
+		if (ae.getSource() == submit) {
+
+			String ip = JOptionPane.showInputDialog("Enter Router IP Address");
+			String destip = JOptionPane.showInputDialog("Enter Destination IP Address");
+			try {
+				
+				Socket s = new Socket(ip, 3737);
+				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+				
+				  Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
+		    		Connection con = DriverManager.getConnection("jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};Dbq=src\\Database.mdb");
+				Statement st = con.createStatement();
+				String sql="insert into ownerfiles values('"+filename+"')";
+				st.executeUpdate(sql);
+				System.out.println("File name inserted");
+
+				dos.writeUTF(filename);
+				dos.writeUTF(ta.getText());
+				dos.writeUTF(mac);
+				dos.writeUTF(destip);
+				System.out.println("File sent");
+
+				JOptionPane.showMessageDialog(null,
+						"File sent to Router successfully...");
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+
+	}
+
+}
+// Attacked Contents are here
